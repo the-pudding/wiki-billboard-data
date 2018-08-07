@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "download-year-pages": "node scripts/download-year-pages.js"
+    "download-year-pages": "node scripts/download-year-pages.js",
+    "parse-year-pages": "node scripts/parse-year-pages.js"
   },
   "repository": {
     "type": "git",
@@ -18,6 +19,7 @@
   },
   "homepage": "https://github.com/the-pudding/wiki-billboard-data#readme",
   "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
     "d3": "^5.5.0",
     "mkdirp": "^0.5.1",
     "wikijs": "^4.8.1"
