@@ -10,10 +10,17 @@ const people = d3
 
 function extractPeople(file) {
   console.log(file);
+
   const data = JSON.parse(fs.readFileSync(`${outputDir}/${file}`));
   const { articles } = data.items[0];
   const filtered = articles.filter(d => people.includes(d.article));
-  return filtered;
+
+  const date = file.replace('.json', '');
+  const withDate = filtered.map(d => ({
+    ...d,
+    date
+  }));
+  return withDate;
 }
 
 function filterToPeople() {
