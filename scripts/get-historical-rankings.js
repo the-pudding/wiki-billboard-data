@@ -16,8 +16,9 @@ function extractPeople(file) {
   const filtered = articles.filter(d => people.includes(d.article));
 
   const date = file.replace('.json', '');
-  const withDate = filtered.map(d => ({
+  const withDate = filtered.map((d, i) => ({
     ...d,
+    rank_people: i,
     date
   }));
   return withDate;
