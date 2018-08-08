@@ -6,7 +6,8 @@
   "scripts": {
     "download-year-pages": "node scripts/download-year-pages.js",
     "parse-year-pages": "node scripts/parse-year-pages.js",
-    "get-historical-rankings": "node scripts/get-historical-rankings.js"
+    "get-historical-rankings": "node scripts/get-historical-rankings.js",
+    "get-todays-rankings": "node scripts/get-todays-rankings.js"
   },
   "repository": {
     "type": "git",
