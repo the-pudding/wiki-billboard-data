@@ -4,7 +4,7 @@ const uploadToS3 = require('./upload-to-s3');
 
 const AWS_PATH = '2018/08/wiki-billboard-data/top-1000';
 
-function extractPeople({data, people}) {
+function extractPeople({ data, people }) {
   const { articles, year, month, day } = data.items[0];
   const filtered = articles.filter(d => people.includes(d.article));
 
@@ -46,32 +46,35 @@ function generateDate() {
 }
 
 async function loadPeople() {
-	return new Promise((resolve, reject) => {
-		const t = (new Date()).getTime()
-		const url = `https://pudding.cool/2018/08/wiki-billboard-data/people/all.csv?version=${t}`
-		request(url, (err, response, body) => {
-			if (err) reject(err)
-			else if (response && response.statusCode === 200) {
-				people = d3.csvParse(response).map(d => d.name.replace(/ /g, '_'));
-				resolve();
-			} else reject(response.statusCode)
-		})
-	})
+  return new Promise((resolve, reject) => {
+    const t = new Date().getTime();
+    const url = `https://pudding.cool/2018/08/wiki-billboard-data/people/all.csv?version=${t}`;
+    request(url, (err, response, body) => {
+      if (err) reject(err);
+      else if (response && response.statusCode === 200) {
+        people = d3.csvParse(body).map(d => d.name.replace(/ /g, '_'));
+        resolve(people);
+      } else reject(response.statusCode);
+    });
+  });
 }
 
-async function init() {
+function init() {
   return new Promise((resolve, reject) => {
-		const date = generateDate();
+    const date = generateDate();
 
     // download json
     download(date)
       .then(data => {
-				const people = await loadPeople()
-        const extractedPeople = extractPeople({data, people});
-        const path = `${AWS_PATH}/${date.year}-${date.month}-${date.day}`;
-        const string = JSON.stringify(extractedPeople);
-        uploadToS3({ string, path, ext: 'json' })
-          .then(resolve)
+        loadPeople()
+          .then(people => {
+            const extractedPeople = extractPeople({ data, people });
+            const path = `${AWS_PATH}/${date.year}-${date.month}-${date.day}`;
+            const string = JSON.stringify(extractedPeople);
+            uploadToS3({ string, path, ext: 'json' })
+              .then(resolve)
+              .catch(reject);
+          })
           .catch(reject);
       })
       .catch(reject);
