@@ -7,12 +7,12 @@ function init() {
     .then(getTodaysRankings)
     .then(() => {
       console.log('done');
-      // todo compile results
       process.exit();
     })
     .catch(error => {
       console.log(error);
       sendMail(error);
+      process.exit();
     });
 }
 
