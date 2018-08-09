@@ -5,6 +5,14 @@ const sendMail = require('./send-mail');
 
 const AWS_PATH = '2018/08/wiki-billboard-data/web';
 
+function zeroPad(t) {
+    return d3.format('02')(t);
+  }
+
+function createChartData(data) {
+    
+}
+
 function generateDates() {
     const usec = 86400000;
     const start = new Date(2018, 0, 1);
@@ -50,7 +58,7 @@ async function loadDays(dates) {
     }
     if (error) return Promise.reject(error);
     const data = [].concat(...output);
-    console.log(data);
+    createChartData(data);
 }
 
 function init() {
