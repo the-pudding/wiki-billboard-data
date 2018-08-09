@@ -4,10 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "download-year-pages": "node scripts/download-year-pages.js",
-    "parse-year-pages": "node scripts/parse-year-pages.js",
-    "get-historical-rankings": "node scripts/get-historical-rankings.js",
-    "get-todays-rankings": "node scripts/get-todays-rankings.js"
+    "download-year-pages": "node scripts/historical/download-year-pages.js",
+    "parse-year-pages": "node scripts/historical/parse-year-pages.js",
+    "get-historical-rankings": "node scripts/historical/get-historical-rankings.js"
   },
   "repository": {
     "type": "git",
@@ -23,7 +22,9 @@
   "dependencies": {
     "cheerio": "^1.0.0-rc.2",
     "d3": "^5.5.0",
+    "knox": "0.9.2",
     "mkdirp": "^0.5.1",
+    "nodemailer": "4.6.7",
     "request": "2.87.0",
     "wikijs": "^4.8.1"
   }

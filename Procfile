@@ -1,1 +1,1 @@
-worker: node latest.js
+worker: node scripts/current/index.js
