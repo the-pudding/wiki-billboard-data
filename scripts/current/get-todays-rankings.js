@@ -1,15 +1,10 @@
-const fs = require('fs');
 const request = require('request');
 const d3 = require('d3');
 const uploadToS3 = require('./upload-to-s3');
 
 const AWS_PATH = '2018/08/wiki-billboard-data/top-1000';
 
-const people = d3
-  .csvParse(fs.readFileSync('./output/people.csv', 'utf-8'))
-  .map(d => d.name.replace(/ /g, '_'));
-
-function extractPeople(data) {
+function extractPeople({data, people}) {
   const { articles, year, month, day } = data.items[0];
   const filtered = articles.filter(d => people.includes(d.article));
 
@@ -50,14 +45,29 @@ function generateDate() {
   return { year, month, day };
 }
 
-function init() {
+async function loadPeople() {
+	return new Promise((resolve, reject) => {
+		const t = (new Date()).getTime()
+		const url = `https://pudding.cool/2018/08/wiki-billboard-data/people/all.csv?version=${t}`
+		request(url, (err, response, body) => {
+			if (err) reject(err)
+			else if (response && response.statusCode === 200) {
+				people = d3.csvParse(response).map(d => d.name.replace(/ /g, '_'));
+				resolve();
+			} else reject(response.statusCode)
+		})
+	})
+}
+
+async function init() {
   return new Promise((resolve, reject) => {
-    const date = generateDate();
+		const date = generateDate();
 
     // download json
     download(date)
-      .then(d => {
-        const extractedPeople = extractPeople(d);
+      .then(data => {
+				const people = await loadPeople()
+        const extractedPeople = extractPeople({data, people});
         const path = `${AWS_PATH}/${date.year}-${date.month}-${date.day}`;
         const string = JSON.stringify(extractedPeople);
         uploadToS3({ string, path, ext: 'json' })

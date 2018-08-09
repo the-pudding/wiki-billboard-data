@@ -3,8 +3,9 @@ const getTodaysRankings = require('./get-todays-rankings');
 const getPeople = require('./get-people');
 
 function init() {
-  getPeople()
-    .then(getTodaysRankings)
+  // getPeople()
+  // .then(getTodaysRankings)
+  getTodaysRankings()
     .then(() => {
       console.log('done');
       // todo compile results
