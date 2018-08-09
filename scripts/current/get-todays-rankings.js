@@ -45,14 +45,14 @@ function generateDate() {
   return { year, month, day };
 }
 
-async function loadPeople() {
+function loadPeople() {
   return new Promise((resolve, reject) => {
     const t = new Date().getTime();
     const url = `https://pudding.cool/2018/08/wiki-billboard-data/people/all.csv?version=${t}`;
     request(url, (err, response, body) => {
       if (err) reject(err);
       else if (response && response.statusCode === 200) {
-        people = d3.csvParse(body).map(d => d.name.replace(/ /g, '_'));
+        const people = d3.csvParse(body).map(d => d.name.replace(/ /g, '_'));
         resolve(people);
       } else reject(response.statusCode);
     });
