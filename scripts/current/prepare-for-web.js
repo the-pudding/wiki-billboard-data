@@ -1,5 +1,7 @@
 const request = require('request');
 const d3 = require('d3');
+const uniq = require('lodash.uniqby');
+const fs = require('fs');
 const uploadToS3 = require('./upload-to-s3');
 const sendMail = require('./send-mail');
 
@@ -9,9 +11,24 @@ function zeroPad(t) {
     return d3.format('02')(t);
   }
 
-function createChartData(data) {
+
+function liveChart(data) {
+    const limit = 10;
     
+    // filter the data to people that appear at least once in top 10
+    // output: unique list of people
+    const top10People = uniq(data.filter(d => d.rank_people < limit).map(d => d.article));
+    
+    // filter all data to get individual days' data for those people
+    const output = data.filter(d => top10People.includes(d.article))
+    fs.writeFileSync("./output/temp.csv",d3.csvFormat(output));
 }
+
+function createChartData(data) {
+    liveChart(data);
+}
+
+
 
 function generateDates() {
     const usec = 86400000;
