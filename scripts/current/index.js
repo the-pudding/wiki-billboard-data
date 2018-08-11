@@ -4,18 +4,18 @@ const getPeople = require('./get-people');
 const prepareForWeb = require('./prepare-for-web');
 
 function init() {
-  getPeople()
-    .then(getTodaysRankings)
-    .then(() => {
-      console.log('done');
-      process.exit();
-    })
-    .catch(error => {
-      console.log(error);
-      sendMail(error);
-      process.exit();
-    });
-  // prepareForWeb();
+  // getPeople()
+  //   .then(getTodaysRankings)
+  //   .then(() => {
+  //     console.log('done');
+  //     process.exit();
+  //   })
+  //   .catch(error => {
+  //     console.log(error);
+  //     sendMail(error);
+  //     process.exit();
+  //   });
+  prepareForWeb();
 }
 
 init();
