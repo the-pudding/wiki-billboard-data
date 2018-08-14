@@ -25,7 +25,7 @@ function upload({ data, chart }) {
 function liveChartAppearance(data) {
   return new Promise((resolve, reject) => {
     const output = data.filter(d => d.rank_people < LIMIT);
-    upload({ data: output, chart: '2018-top--appearance.csv' })
+    upload({ data: output, chart: '2018-top--appearance' })
       .then(() => resolve(data))
       .catch(reject);
   });
@@ -42,7 +42,7 @@ function liveChartAll(data) {
     // filter all data to get individual days' data for those people
     const output = data.filter(d => top10People.includes(d.article));
 
-    upload({ data: output, chart: '2018-top--all.csv' })
+    upload({ data: output, chart: '2018-top--all' })
       .then(() => resolve(data))
       .catch(reject);
   });
