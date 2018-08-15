@@ -6,6 +6,7 @@ const prepareForWeb = require('./prepare-for-web');
 function init() {
   getPeople()
     .then(getTodaysRankings)
+    .then(prepareForWeb)
     .then(() => {
       console.log('done');
       process.exit();
@@ -15,7 +16,6 @@ function init() {
       sendMail(error);
       process.exit();
     });
-  // prepareForWeb();
 }
 
 init();
