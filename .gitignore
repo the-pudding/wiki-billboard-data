@@ -3,5 +3,6 @@ node_modules
 output
 package-lock.json
 test.js
+prepare.json
 *.env
 *.dev

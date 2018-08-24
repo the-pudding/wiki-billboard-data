@@ -2,11 +2,15 @@ const request = require('request');
 const d3 = require('d3');
 const uniq = require('lodash.uniqby');
 const fs = require('fs');
+const pageviews = require('pageviews');
 const uploadToS3 = require('./upload-to-s3');
 const sendMail = require('./send-mail');
 
 const AWS_PATH = '2018/08/wiki-billboard-data/web';
 const LIMIT = 10;
+const YEAR = 2017;
+const MAX_SCORE = 1000;
+const MAX_PEOPLE_TALLY = 100;
 
 function zeroPad(t) {
   return d3.format('02')(t);
@@ -18,6 +22,25 @@ function upload({ data, chart }) {
     const path = `${AWS_PATH}/${chart}`;
     uploadToS3({ string, path, ext: 'csv' })
       .then(resolve)
+      .catch(reject);
+  });
+}
+
+function getOldPageviews(article) {
+  return new Promise((resolve, reject) => {
+    pageviews
+      .getPerArticlePageviews({
+        project: 'en.wikipedia',
+        agent: 'user',
+        granularity: 'daily',
+        start: `${YEAR}0101`,
+        end: `${YEAR}1231`,
+        article
+      })
+      .then(result => {
+        const exists = result.items.find(day => day.views && day.views > 0);
+        resolve(exists);
+      })
       .catch(reject);
   });
 }
@@ -48,8 +71,86 @@ function liveChartAll(data) {
   });
 }
 
+function tallyChart(data) {
+  return new Promise((resolve, reject) => {
+    const ids = d3
+      .nest()
+      .key(d => d.article)
+      .rollup(values => d3.sum(values.map(v => MAX_SCORE - v.rank_people)))
+      .entries(data)
+      .sort((a, b) => d3.descending(a.value, b.value))
+      .slice(0, MAX_PEOPLE_TALLY)
+      .map(d => d.key);
+
+    // filter the data to people that are top 100 in cumulative score
+    const filtered = data.filter(d => ids.includes(d.article));
+
+    // add score
+    const output = filtered.map(d => ({
+      ...d,
+      score: MAX_SCORE - d.rank_people
+    }));
+
+    upload({ data: output, chart: '2018-tally' })
+      .then(() => resolve(data))
+      .catch(reject);
+  });
+}
+
+function breakoutChartRising(data) {}
+
+async function breakoutChartScoring(data) {
+  // filter down to people who didn't have a page in 2017 or 16
+  const uniquePeople = uniq(data.map(d => d.article));
+  const newPeople = [];
+
+  for (article of uniquePeople) {
+    console.log(article);
+    await getOldPageviews(article)
+      .then(exists => {
+        if (!exists) newPeople.push(article);
+      })
+      .catch(console.log);
+  }
+
+  // just non 2017 people
+  const filtered = data.filter(d => newPeople.includes(d.article));
+  const withScore = filtered.map(d => ({
+    ...d,
+    score: MAX_SCORE - d.rank_people
+  }));
+
+  // group by article and add running tally
+  const nested = d3
+    .nest()
+    .key(d => d.article)
+    .rollup(values => {
+      let tally = 0;
+      values.map(v => {
+        tally += v.score;
+        return {
+          ...v,
+          running_score: tally
+        };
+      });
+    })
+    .entries(withScore);
+
+  // flatten
+  const flat = [].concat(...nested.map(d => d.value));
+  upload({ data: flat, chart: '2018-breakout--scoring' })
+    .then(() => resolve(data))
+    .catch(reject);
+}
+
 function createChartData(data) {
-  liveChartAll(data).then(liveChartAppearance);
+  // breakoutChartScoring(data);
+  // tallyChart(data);
+  liveChartAll(data)
+    .then(liveChartAppearance)
+    .then(tallyChart);
+  // 	.then(breakoutChartRising)
+  // 	.then(breakoutChartScoring)
 }
 
 function generateDates() {
@@ -96,6 +197,9 @@ async function loadDays(dates) {
   }
   if (error) return Promise.reject(error);
   const data = [].concat(...output);
+
+  // fs.writeFileSync('./prepare.json', JSON.stringify(data));
+  // const data = JSON.parse(fs.readFileSync('./prepare.json', 'utf-8'));
   createChartData(data);
 }
 

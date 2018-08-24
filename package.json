@@ -26,6 +26,7 @@
     "lodash.uniqby": "^4.7.0",
     "mkdirp": "^0.5.1",
     "nodemailer": "4.6.7",
+    "pageviews": "1.4.0",
     "request": "2.87.0",
     "wikijs": "^4.8.1"
   }
