@@ -16,6 +16,36 @@ function zeroPad(t) {
   return d3.format('02')(t);
 }
 
+function getDetails(article) {
+  const baseUrl = 'https://en.wikipedia.org/api/rest_v1/page/summary';
+  return new Promise((resolve, reject) => {
+    const url = `${baseUrl}/${encodeURI(article)}`;
+    request(url, (err, resp, body) => {
+      if (err) reject(err);
+      else if (resp.statusCode === 200) {
+        const data = JSON.parse(body);
+        const { pageid, thumbnail, description, extract } = data;
+        const { display } = data.titles;
+
+        const thumbnail_source = thumbnail ? thumbnail.source : null;
+        const thumbnail_width = thumbnail ? thumbnail.width : null;
+        const thumbnail_height = thumbnail ? thumbnail.height : null;
+
+        resolve({
+          article,
+          pageid,
+          description,
+          display,
+          thumbnail_source,
+          thumbnail_width,
+          thumbnail_height,
+          extract: extract.replace(/\n/g, '')
+        });
+      } else reject(resp.statusCode);
+    });
+  });
+}
+
 function upload({ data, chart }) {
   return new Promise((resolve, reject) => {
     const string = d3.csvFormat(data);
@@ -58,12 +88,12 @@ function liveChartAll(data) {
   return new Promise((resolve, reject) => {
     // filter the data to people that appear at least once in top 10
     // output: unique list of people
-    const top10People = uniq(
+    const topPeople = uniq(
       data.filter(d => d.rank_people < LIMIT).map(d => d.article)
     );
 
     // filter all data to get individual days' data for those people
-    const output = data.filter(d => top10People.includes(d.article));
+    const output = data.filter(d => topPeople.includes(d.article));
 
     upload({ data: output, chart: '2018-top--all' })
       .then(() => resolve(data))
@@ -71,7 +101,7 @@ function liveChartAll(data) {
   });
 }
 
-function tallyChart(data) {
+function tallyChartScore(data) {
   return new Promise((resolve, reject) => {
     const ids = d3
       .nest()
@@ -91,13 +121,60 @@ function tallyChart(data) {
       score: MAX_SCORE - d.rank_people
     }));
 
-    upload({ data: output, chart: '2018-tally' })
+    upload({ data: output, chart: '2018-tally--score' })
       .then(() => resolve(data))
       .catch(reject);
   });
 }
 
-function breakoutChartRising(data) {}
+function tallyChartPageviews(data) {
+  return new Promise((resolve, reject) => {
+    const ids = d3
+      .nest()
+      .key(d => d.article)
+      .rollup(values => d3.sum(values.map(v => v.pageviews)))
+      .entries(data)
+      .sort((a, b) => d3.descending(a.value, b.value))
+      .slice(0, MAX_PEOPLE_TALLY)
+      .map(d => d.key);
+
+    // filter the data to people that are top 100 in cumulative score
+    const filtered = data.filter(d => ids.includes(d.article));
+
+    upload({ data: filtered, chart: '2018-tally--pageviews' })
+      .then(() => resolve(data))
+      .catch(reject);
+  });
+}
+
+async function peopleInfo(data) {
+  return new Promise(async (resolve, reject) => {
+    const topPeople = uniq(
+      data.filter(d => d.rank_people < LIMIT).map(d => d.article)
+    );
+
+    const withDetails = [];
+
+    let index = 0;
+    for (article of topPeople) {
+      console.log(`${index + 1} of ${topPeople.length}: ${article}`);
+      await getDetails(article)
+        .then(response => {
+          withDetails.push(response);
+        })
+        .catch(err => {
+          console.log(err);
+          withDetails.push({ article });
+        });
+      index += 1;
+    }
+
+    // fs.writeFileSync('./people.json', JSON.stringify(withDetails, null, 2));
+    upload({ data: withDetails, chart: '2018-people' })
+      .then(() => resolve(data))
+      .catch(reject);
+  });
+}
 
 async function breakoutChartScoring(data) {
   // filter down to people who didn't have a page in 2017 or 16
@@ -144,11 +221,12 @@ async function breakoutChartScoring(data) {
 }
 
 function createChartData(data) {
-  // breakoutChartScoring(data);
-  // tallyChart(data);
-  liveChartAll(data)
+  peopleInfo(data)
+    .then(liveChartAll)
     .then(liveChartAppearance)
-    .then(tallyChart);
+    .then(tallyChartScore)
+    .then(tallyChartPageviews);
+
   // 	.then(breakoutChartRising)
   // 	.then(breakoutChartScoring)
 }
@@ -185,21 +263,21 @@ function download({ year, month, day }) {
 }
 
 async function loadDays(dates) {
-  const output = [];
-  let error = null;
-  for (const date of dates) {
-    console.log(date);
-    await download(date)
-      .then(people => {
-        output.push(people);
-      })
-      .catch(sendMail);
-  }
-  if (error) return Promise.reject(error);
-  const data = [].concat(...output);
+  // const output = [];
+  // let error = null;
+  // for (const date of dates) {
+  //   console.log(date);
+  //   await download(date)
+  //     .then(people => {
+  //       output.push(people);
+  //     })
+  //     .catch(sendMail);
+  // }
+  // if (error) return Promise.reject(error);
+  // const data = [].concat(...output);
 
   // fs.writeFileSync('./prepare.json', JSON.stringify(data));
-  // const data = JSON.parse(fs.readFileSync('./prepare.json', 'utf-8'));
+  const data = JSON.parse(fs.readFileSync('./prepare.json', 'utf-8'));
   createChartData(data);
 }
 
