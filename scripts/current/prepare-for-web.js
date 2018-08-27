@@ -103,14 +103,13 @@ function liveChartAll(data) {
 
 function rollupScore(values) {
   let prev = 0;
-  values.map(v => {
+  return values.map(v => {
     prev += v.score;
     return {
       ...v,
       score_sum: prev
     };
   });
-  return values;
 }
 
 function tallyChartScore(data) {
@@ -150,14 +149,13 @@ function tallyChartScore(data) {
 
 function rollupViews(values) {
   let prev = 0;
-  values.map(v => {
+  return values.map(v => {
     prev += v.views;
     return {
       ...v,
       views_sum: prev
     };
   });
-  return values;
 }
 
 function tallyChartViews(data) {
@@ -183,7 +181,7 @@ function tallyChartViews(data) {
 
     const flat = [].concat(...nested);
 
-    upload({ data: filtered, chart: '2018-tally--views' })
+    upload({ data: flat, chart: '2018-tally--views' })
       .then(() => resolve(flat))
       .catch(reject);
   });
@@ -327,7 +325,7 @@ async function loadDays(dates) {
 function init() {
   return new Promise((resolve, reject) => {
     const dates = generateDates();
-    loadDays(dates);
+    loadDays(dates).catch(sendMail);
   });
 }
 
