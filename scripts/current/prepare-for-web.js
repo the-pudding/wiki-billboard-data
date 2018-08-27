@@ -101,6 +101,18 @@ function liveChartAll(data) {
   });
 }
 
+function rollupScore(values) {
+  let prev = 0;
+  values.map(v => {
+    prev += v.score;
+    return {
+      ...v,
+      score_sum: prev
+    };
+  });
+  return values;
+}
+
 function tallyChartScore(data) {
   return new Promise((resolve, reject) => {
     const ids = d3
@@ -116,23 +128,44 @@ function tallyChartScore(data) {
     const filtered = data.filter(d => ids.includes(d.article));
 
     // add score
-    const output = filtered.map(d => ({
+    const withScore = filtered.map(d => ({
       ...d,
       score: MAX_SCORE - d.rank_people
     }));
 
-    upload({ data: output, chart: '2018-tally--score' })
-      .then(() => resolve(data))
+    const nested = d3
+      .nest()
+      .key(d => d.article)
+      .rollup(rollupScore)
+      .entries(withScore)
+      .map(d => d.value);
+
+    const flat = [].concat(...nested);
+
+    upload({ data: flat, chart: '2018-tally--score' })
+      .then(() => resolve(flat))
       .catch(reject);
   });
 }
 
-function tallyChartPageviews(data) {
+function rollupViews(values) {
+  let prev = 0;
+  values.map(v => {
+    prev += v.views;
+    return {
+      ...v,
+      views_sum: prev
+    };
+  });
+  return values;
+}
+
+function tallyChartViews(data) {
   return new Promise((resolve, reject) => {
     const ids = d3
       .nest()
       .key(d => d.article)
-      .rollup(values => d3.sum(values.map(v => v.pageviews)))
+      .rollup(values => d3.sum(values.map(v => v.views)))
       .entries(data)
       .sort((a, b) => d3.descending(a.value, b.value))
       .slice(0, MAX_PEOPLE_TALLY)
@@ -141,8 +174,17 @@ function tallyChartPageviews(data) {
     // filter the data to people that are top 100 in cumulative score
     const filtered = data.filter(d => ids.includes(d.article));
 
-    upload({ data: filtered, chart: '2018-tally--pageviews' })
-      .then(() => resolve(data))
+    const nested = d3
+      .nest()
+      .key(d => d.article)
+      .rollup(rollupViews)
+      .entries(filtered)
+      .map(d => d.value);
+
+    const flat = [].concat(...nested);
+
+    upload({ data: filtered, chart: '2018-tally--views' })
+      .then(() => resolve(flat))
       .catch(reject);
   });
 }
@@ -225,7 +267,8 @@ function createChartData(data) {
     .then(liveChartAll)
     .then(liveChartAppearance)
     .then(tallyChartScore)
-    .then(tallyChartPageviews);
+    .then(tallyChartViews)
+    .catch(sendMail);
 
   // 	.then(breakoutChartRising)
   // 	.then(breakoutChartScoring)
@@ -263,21 +306,21 @@ function download({ year, month, day }) {
 }
 
 async function loadDays(dates) {
-  // const output = [];
-  // let error = null;
-  // for (const date of dates) {
-  //   console.log(date);
-  //   await download(date)
-  //     .then(people => {
-  //       output.push(people);
-  //     })
-  //     .catch(sendMail);
-  // }
-  // if (error) return Promise.reject(error);
-  // const data = [].concat(...output);
+  const output = [];
+  let error = null;
+  for (const date of dates) {
+    console.log(date);
+    await download(date)
+      .then(people => {
+        output.push(people);
+      })
+      .catch(sendMail);
+  }
+  if (error) return Promise.reject(error);
+  const data = [].concat(...output);
 
   // fs.writeFileSync('./prepare.json', JSON.stringify(data));
-  const data = JSON.parse(fs.readFileSync('./prepare.json', 'utf-8'));
+  // const data = JSON.parse(fs.readFileSync('./prepare.json', 'utf-8'));
   createChartData(data);
 }
 
