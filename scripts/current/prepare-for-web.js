@@ -10,7 +10,7 @@ const AWS_PATH = '2018/08/wiki-billboard-data/web';
 const LIMIT = 10;
 const YEAR = 2017;
 const MAX_SCORE = 1000;
-const MAX_PEOPLE_TALLY = 100;
+const MAX_PEOPLE_TALLY = 200;
 
 function zeroPad(t) {
   return d3.format('02')(t);
