@@ -175,19 +175,19 @@ function rollupViews(values) {
   });
 }
 
+function rollupAppearance(values) {
+  let prev = 0;
+  return values.map(v => {
+    prev += v.rank_people < 10 ? 1 : 0;
+    return {
+      ...v,
+      appearance_sum: prev
+    };
+  });
+}
+
 function tallyChartViews({ people, data }) {
   return new Promise((resolve, reject) => {
-    // const dataDead = data.filter(d => {
-    //   const match = people.find(p => p.article === d.article);
-    //   if (match) return match.dead === 'true';
-    //   return false;
-    // });
-    // const dataAlive = data.filter(d => {
-    //   const match = people.find(p => p.article === d.article);
-    //   if (match) return match.dead === 'false';
-    //   return true;
-    // });
-
     const articleUnique = uniq(data, 'article').map(d => d.article);
 
     const articleDead = articleUnique.filter(d => {
@@ -241,6 +241,67 @@ function tallyChartViews({ people, data }) {
     upload({ data: flatDead, chart: '2018-tally-views--dead' })
       .then(() => {
         upload({ data: flatAlive, chart: '2018-tally-views--alive' });
+        resolve({ people, data });
+      })
+      .catch(reject);
+  });
+}
+
+function tallyChartAppearance({ people, data }) {
+  return new Promise((resolve, reject) => {
+    const articleUnique = uniq(data, 'article').map(d => d.article);
+
+    const articleDead = articleUnique.filter(d => {
+      const match = people.find(p => p.article === d);
+      if (match) return match.dead === 'true';
+      return false;
+    });
+
+    const articleAlive = articleUnique.filter(d => {
+      const match = people.find(p => p.article === d);
+      if (match) return match.dead === 'false';
+      return true;
+    });
+
+    // filter the data to people that are top 100 in cumulative score
+    const filteredDead = data.filter(d => articleDead.includes(d.article));
+    const filteredAlive = data.filter(d => articleAlive.includes(d.article));
+
+    const nestedDead = d3
+      .nest()
+      .key(d => d.article)
+      .rollup(rollupAppearance)
+      .entries(filteredDead);
+
+    const nestedAlive = d3
+      .nest()
+      .key(d => d.article)
+      .rollup(rollupAppearance)
+      .entries(filteredAlive);
+
+    nestedDead.sort((a, b) => {
+      const maxA = a.value[a.value.length - 1].appearance_sum;
+      const maxB = b.value[b.value.length - 1].appearance_sum;
+      return d3.descending(maxA, maxB);
+    });
+
+    nestedAlive.sort((a, b) => {
+      const maxA = a.value[a.value.length - 1].appearance_sum;
+      const maxB = b.value[b.value.length - 1].appearance_sum;
+      return d3.descending(maxA, maxB);
+    });
+
+    const slicedDead = nestedDead.slice(0, MAX_PEOPLE_TALLY).map(d => d.value);
+    const slicedAlive = nestedAlive
+      .slice(0, MAX_PEOPLE_TALLY)
+      .map(d => d.value);
+
+    const flatDead = [].concat(...slicedDead);
+    const flatAlive = [].concat(...slicedAlive);
+
+    upload({ data: flatDead, chart: '2018-tally-appearance--dead' })
+      .then(() => {
+        upload({ data: flatAlive, chart: '2018-tally-appearance--alive' });
         resolve({ people, data });
       })
       .catch(reject);
@@ -328,6 +389,7 @@ function createChartData({ people, data }) {
     .then(liveChartAll)
     .then(liveChartAppearance)
     .then(tallyChartViews)
+    .then(tallyChartAppearance)
     .catch(sendMail);
 
   // 	.then(breakoutChartRising)
