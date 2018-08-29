@@ -10,7 +10,7 @@ const AWS_PATH = '2018/08/wiki-billboard-data/web';
 const LIMIT = 10;
 const YEAR = 2017;
 const MAX_SCORE = 1000;
-const MAX_PEOPLE_TALLY = 200;
+const MAX_PEOPLE_TALLY = 50;
 
 function zeroPad(t) {
   return d3.format('02')(t);
@@ -56,6 +56,23 @@ function upload({ data, chart }) {
   });
 }
 
+function loadPeople() {
+  return new Promise((resolve, reject) => {
+    const t = new Date().getTime();
+    const url = `https://pudding.cool/2018/08/wiki-billboard-data/people/all.csv?version=${t}`;
+    request(url, (err, response, body) => {
+      if (err) reject(err);
+      else if (response && response.statusCode === 200) {
+        const people = d3.csvParse(body).map(d => ({
+          ...d,
+          article: d.name.replace(/ /g, '_')
+        }));
+        resolve(people);
+      } else reject(response.statusCode);
+    });
+  });
+}
+
 function getOldPageviews(article) {
   return new Promise((resolve, reject) => {
     pageviews
@@ -75,16 +92,16 @@ function getOldPageviews(article) {
   });
 }
 
-function liveChartAppearance(data) {
+function liveChartAppearance({ people, data }) {
   return new Promise((resolve, reject) => {
     const output = data.filter(d => d.rank_people < LIMIT);
     upload({ data: output, chart: '2018-top--appearance' })
-      .then(() => resolve(data))
+      .then(() => resolve({ people, data }))
       .catch(reject);
   });
 }
 
-function liveChartAll(data) {
+function liveChartAll({ people, data }) {
   return new Promise((resolve, reject) => {
     // filter the data to people that appear at least once in top 10
     // output: unique list of people
@@ -96,7 +113,7 @@ function liveChartAll(data) {
     const output = data.filter(d => topPeople.includes(d.article));
 
     upload({ data: output, chart: '2018-top--all' })
-      .then(() => resolve(data))
+      .then(() => resolve({ people, data }))
       .catch(reject);
   });
 }
@@ -112,7 +129,7 @@ function rollupScore(values) {
   });
 }
 
-function tallyChartScore(data) {
+function tallyChartScore({ people, data }) {
   return new Promise((resolve, reject) => {
     const ids = d3
       .nest()
@@ -142,7 +159,7 @@ function tallyChartScore(data) {
     const flat = [].concat(...nested);
 
     upload({ data: flat, chart: '2018-tally--score' })
-      .then(() => resolve(flat))
+      .then(() => resolve({ people, data }))
       .catch(reject);
   });
 }
@@ -158,36 +175,79 @@ function rollupViews(values) {
   });
 }
 
-function tallyChartViews(data) {
+function tallyChartViews({ people, data }) {
   return new Promise((resolve, reject) => {
-    const ids = d3
-      .nest()
-      .key(d => d.article)
-      .rollup(values => d3.sum(values.map(v => v.views)))
-      .entries(data)
-      .sort((a, b) => d3.descending(a.value, b.value))
-      .slice(0, MAX_PEOPLE_TALLY)
-      .map(d => d.key);
+    // const dataDead = data.filter(d => {
+    //   const match = people.find(p => p.article === d.article);
+    //   if (match) return match.dead === 'true';
+    //   return false;
+    // });
+    // const dataAlive = data.filter(d => {
+    //   const match = people.find(p => p.article === d.article);
+    //   if (match) return match.dead === 'false';
+    //   return true;
+    // });
+
+    const articleUnique = uniq(data, 'article').map(d => d.article);
+
+    const articleDead = articleUnique.filter(d => {
+      const match = people.find(p => p.article === d);
+      if (match) return match.dead === 'true';
+      return false;
+    });
+
+    const articleAlive = articleUnique.filter(d => {
+      const match = people.find(p => p.article === d);
+      if (match) return match.dead === 'false';
+      return true;
+    });
 
     // filter the data to people that are top 100 in cumulative score
-    const filtered = data.filter(d => ids.includes(d.article));
+    const filteredDead = data.filter(d => articleDead.includes(d.article));
+    const filteredAlive = data.filter(d => articleAlive.includes(d.article));
 
-    const nested = d3
+    const nestedDead = d3
       .nest()
       .key(d => d.article)
       .rollup(rollupViews)
-      .entries(filtered)
+      .entries(filteredDead);
+
+    const nestedAlive = d3
+      .nest()
+      .key(d => d.article)
+      .rollup(rollupViews)
+      .entries(filteredAlive);
+
+    nestedDead.sort((a, b) => {
+      const maxA = a.value[a.value.length - 1].views_sum;
+      const maxB = b.value[b.value.length - 1].views_sum;
+      return d3.descending(maxA, maxB);
+    });
+
+    nestedAlive.sort((a, b) => {
+      const maxA = a.value[a.value.length - 1].views_sum;
+      const maxB = b.value[b.value.length - 1].views_sum;
+      return d3.descending(maxA, maxB);
+    });
+
+    const slicedDead = nestedDead.slice(0, MAX_PEOPLE_TALLY).map(d => d.value);
+    const slicedAlive = nestedAlive
+      .slice(0, MAX_PEOPLE_TALLY)
       .map(d => d.value);
 
-    const flat = [].concat(...nested);
+    const flatDead = [].concat(...slicedDead);
+    const flatAlive = [].concat(...slicedAlive);
 
-    upload({ data: flat, chart: '2018-tally--views' })
-      .then(() => resolve(flat))
+    upload({ data: flatDead, chart: '2018-tally-views--dead' })
+      .then(() => {
+        upload({ data: flatAlive, chart: '2018-tally-views--alive' });
+        resolve({ people, data });
+      })
       .catch(reject);
   });
 }
 
-async function peopleInfo(data) {
+async function peopleInfo({ people, data }) {
   return new Promise(async (resolve, reject) => {
     const topPeople = uniq(
       data.filter(d => d.rank_people < LIMIT).map(d => d.article)
@@ -198,20 +258,23 @@ async function peopleInfo(data) {
     let index = 0;
     for (article of topPeople) {
       console.log(`${index + 1} of ${topPeople.length}: ${article}`);
+      const match = people.find(p => p.article === article);
       await getDetails(article)
         .then(response => {
-          withDetails.push(response);
+          const joined = { ...match, ...response };
+          withDetails.push(joined);
         })
         .catch(err => {
           console.log(err);
-          withDetails.push({ article });
+          const joined = { ...match, article };
+          withDetails.push(joined);
         });
       index += 1;
     }
 
     // fs.writeFileSync('./people.json', JSON.stringify(withDetails, null, 2));
     upload({ data: withDetails, chart: '2018-people' })
-      .then(() => resolve(data))
+      .then(() => resolve({ people, data }))
       .catch(reject);
   });
 }
@@ -260,11 +323,10 @@ async function breakoutChartScoring(data) {
     .catch(reject);
 }
 
-function createChartData(data) {
-  peopleInfo(data)
+function createChartData({ people, data }) {
+  peopleInfo({ people, data })
     .then(liveChartAll)
     .then(liveChartAppearance)
-    .then(tallyChartScore)
     .then(tallyChartViews)
     .catch(sendMail);
 
@@ -303,7 +365,8 @@ function download({ year, month, day }) {
   });
 }
 
-async function loadDays(dates) {
+async function loadDays(people) {
+  const dates = generateDates();
   const output = [];
   let error = null;
   for (const date of dates) {
@@ -319,13 +382,14 @@ async function loadDays(dates) {
 
   // fs.writeFileSync('./prepare.json', JSON.stringify(data));
   // const data = JSON.parse(fs.readFileSync('./prepare.json', 'utf-8'));
-  createChartData(data);
+  createChartData({ people, data });
 }
 
 function init() {
   return new Promise((resolve, reject) => {
-    const dates = generateDates();
-    loadDays(dates).catch(sendMail);
+    loadPeople()
+      .then(loadDays)
+      .catch(sendMail);
   });
 }
 

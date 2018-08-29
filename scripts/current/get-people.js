@@ -1,6 +1,7 @@
 const d3 = require('d3');
 const wiki = require('wikijs').default;
 const cheerio = require('cheerio');
+const uniq = require('lodash.uniqby');
 const uploadToS3 = require('./upload-to-s3');
 const sendMail = require('./send-mail');
 
@@ -46,12 +47,14 @@ function parseLi({ sel, year }) {
     const name = isDate ? a.eq(1).attr('title') : firstTitle;
     const link = isDate ? a.eq(1).attr('href') : firstA.attr('href');
 
+    const dead = /\(d\. \d\d\d\d\)/.test(sel.text());
     const birth_year = year;
 
     return {
       link,
       name,
-      birth_year
+      birth_year,
+      dead
     };
   }
 
@@ -76,15 +79,24 @@ function extractPeople({ html, year }) {
     return output;
   } else {
     const peopleByMonth = MONTHS.map(month => {
-      const parent = $(`#${month}_2`).parent();
-      const ul = parent.nextAll('ul').eq(0);
-
+      // old
+      // const monthParent = $(`#${month}_2`).parent();
+      // new - find match on text on h3 that is AFTER #Births
+      const monthSel = parent.nextUntil('h2', 'h3').filter((i, el) =>
+        $(el)
+          .text()
+          .trim()
+          .replace('[edit]', '')
+          .includes(month)
+      );
+      const monthParent = monthSel.first();
+      const ul = monthParent.nextAll('ul').eq(0);
       const output = [];
       ul.find('li').each((i, el) => {
         const person = parseLi({ sel: $(el), year });
         if (person) output.push(person);
       });
-      return output;
+      return uniq(output, 'link');
     });
 
     return [].concat(...peopleByMonth);
