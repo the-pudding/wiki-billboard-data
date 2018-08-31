@@ -92,11 +92,39 @@ function getOldPageviews(article) {
   });
 }
 
+function downloadSheet({ id, gid }) {
+  return new Promise((resolve, reject) => {
+    const base = 'https://docs.google.com/spreadsheets/u/1/d';
+    const url = `${base}/${id}/export?format=csv&id=${id}&gid=${gid}`;
+
+    request(url, (err, response, body) => {
+      if (err) reject(err);
+      const data = d3.csvParse(body);
+      resolve(data);
+    });
+  });
+}
+
 function liveChartAppearance({ people, data }) {
   return new Promise((resolve, reject) => {
-    const output = data.filter(d => d.rank_people < LIMIT);
-    upload({ data: output, chart: '2018-top--appearance' })
-      .then(() => resolve({ people, data }))
+    downloadSheet({
+      id: '1l5DCh6qZe2Aor-eYP0GeSz1CBSatnDwiwnH7tJG8_zw',
+      gid: '0'
+    })
+      .then(annotations => {
+        const output = data.filter(d => d.rank_people < LIMIT);
+        // add annotations
+        annotations.forEach(a => {
+          const match = output.find(
+            o => o.article === a.article && o.date === a.date
+          );
+          if (match) match.annotation = a.text;
+        });
+
+        upload({ data: output, chart: '2018-top--appearance' })
+          .then(() => resolve({ people, data }))
+          .catch(reject);
+      })
       .catch(reject);
   });
 }
