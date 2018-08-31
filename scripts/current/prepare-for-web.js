@@ -16,7 +16,10 @@ function zeroPad(t) {
   return d3.format('02')(t);
 }
 
-function getDetails(article) {
+function getDetails({ article, peopleWebData }) {
+  const match = peopleWebData.find(p => p.article === article);
+  if (match) return Promise.resolve(match);
+
   const baseUrl = 'https://en.wikipedia.org/api/rest_v1/page/summary';
   return new Promise((resolve, reject) => {
     const url = `${baseUrl}/${encodeURI(article)}`;
@@ -53,6 +56,20 @@ function upload({ data, chart }) {
     uploadToS3({ string, path, ext: 'csv' })
       .then(resolve)
       .catch(reject);
+  });
+}
+
+function loadPeopleWeb() {
+  return new Promise((resolve, reject) => {
+    const t = new Date().getTime();
+    const url = `https://pudding.cool/2018/08/wiki-billboard-data/web/2018-people.csv?version=${t}`;
+    request(url, (err, response, body) => {
+      if (err) reject(err);
+      else if (response && response.statusCode === 200) {
+        const people = d3.csvParse(body);
+        resolve(people);
+      } else reject(response.statusCode);
+    });
   });
 }
 
@@ -338,32 +355,36 @@ function tallyChartAppearance({ people, data }) {
 
 async function peopleInfo({ people, data }) {
   return new Promise(async (resolve, reject) => {
-    const topPeople = uniq(
-      data.filter(d => d.rank_people < LIMIT).map(d => d.article)
-    );
+    loadPeopleWeb()
+      .then(async peopleWebData => {
+        const topPeople = uniq(
+          data.filter(d => d.rank_people < LIMIT).map(d => d.article)
+        );
 
-    const withDetails = [];
+        const withDetails = [];
 
-    let index = 0;
-    for (article of topPeople) {
-      console.log(`${index + 1} of ${topPeople.length}: ${article}`);
-      const match = people.find(p => p.article === article);
-      await getDetails(article)
-        .then(response => {
-          const joined = { ...match, ...response };
-          withDetails.push(joined);
-        })
-        .catch(err => {
-          console.log(err);
-          const joined = { ...match, article };
-          withDetails.push(joined);
-        });
-      index += 1;
-    }
+        let index = 0;
+        for (article of topPeople) {
+          console.log(`${index + 1} of ${topPeople.length}: ${article}`);
+          const match = people.find(p => p.article === article);
+          await getDetails({ article, peopleWebData })
+            .then(response => {
+              const joined = { ...match, ...response };
+              withDetails.push(joined);
+            })
+            .catch(err => {
+              console.log(err);
+              const joined = { ...match, article };
+              withDetails.push(joined);
+            });
+          index += 1;
+        }
 
-    // fs.writeFileSync('./people.json', JSON.stringify(withDetails, null, 2));
-    upload({ data: withDetails, chart: '2018-people' })
-      .then(() => resolve({ people, data }))
+        // fs.writeFileSync('./people.json', JSON.stringify(withDetails, null, 2));
+        upload({ data: withDetails, chart: '2018-people' })
+          .then(() => resolve({ people, data }))
+          .catch(reject);
+      })
       .catch(reject);
   });
 }
