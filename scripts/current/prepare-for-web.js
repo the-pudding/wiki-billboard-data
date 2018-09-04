@@ -125,17 +125,17 @@ function downloadSheet({ id, gid }) {
 function liveChartAppearance({ people, data }) {
   return new Promise((resolve, reject) => {
     downloadSheet({
-      id: '1l5DCh6qZe2Aor-eYP0GeSz1CBSatnDwiwnH7tJG8_zw',
+			id: '1B7hymymVfsvb0EQ_7g5WjgrvuJpBLeVi4HJuz4eNi6k',
       gid: '0'
     })
       .then(annotations => {
         const output = data.filter(d => d.rank_people < LIMIT);
         // add annotations
-        annotations.forEach(a => {
+        annotations.filter(a => a.approved).forEach(a => {
           const match = output.find(
-            o => o.article === a.article && o.date === a.date
+            o => o.article === a.person && o.date === a.date
           );
-          if (match) match.annotation = a.text;
+          if (match) match.annotation = a.annotation;
         });
 
         upload({ data: output, chart: '2018-top--appearance' })
