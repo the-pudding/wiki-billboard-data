@@ -131,7 +131,7 @@ function liveChartAppearance({ people, data }) {
       .then(annotations => {
         const output = data.filter(d => d.rank_people < LIMIT);
         // add annotations
-        annotations.filter(a => a.approved).forEach(a => {
+        annotations.filter(a => a.approved.toLowerCase() === 'true').forEach(a => {
           const match = output.find(
             o => o.article === a.person && o.date === a.date
           );
