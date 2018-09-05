@@ -126,7 +126,7 @@ function liveChartAppearance({ people, data }) {
   return new Promise((resolve, reject) => {
     downloadSheet({
 			id: '1B7hymymVfsvb0EQ_7g5WjgrvuJpBLeVi4HJuz4eNi6k',
-      gid: '0'
+			gid: '1196667091'
     })
       .then(annotations => {
         const output = data.filter(d => d.rank_people < LIMIT);
