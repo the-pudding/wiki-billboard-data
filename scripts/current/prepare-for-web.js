@@ -24,7 +24,8 @@ function getDetails({ article, peopleWebData }) {
 
   const baseUrl = 'https://en.wikipedia.org/api/rest_v1/page/summary';
   return new Promise((resolve, reject) => {
-    const url = `${baseUrl}/${encodeURI(article)}`;
+    const t = Date.now();
+    const url = `${baseUrl}/${encodeURI(article)}?version=${t}`;
     request(url, (err, resp, body) => {
       if (err) reject(err);
       else if (resp.statusCode === 200) {
@@ -43,7 +44,7 @@ function getDetails({ article, peopleWebData }) {
           display,
           thumbnail_source,
           thumbnail_width,
-          thumbnail_height,
+          thumbnail_height
           // extract: extract.replace(/\n/g, '')
         });
       } else reject(resp.statusCode);
