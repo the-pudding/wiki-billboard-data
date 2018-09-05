@@ -44,7 +44,7 @@ function getDetails({ article, peopleWebData }) {
           thumbnail_source,
           thumbnail_width,
           thumbnail_height,
-          extract: extract.replace(/\n/g, '')
+          // extract: extract.replace(/\n/g, '')
         });
       } else reject(resp.statusCode);
     });
