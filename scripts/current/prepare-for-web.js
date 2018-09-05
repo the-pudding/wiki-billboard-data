@@ -12,6 +12,8 @@ const YEAR = 2017;
 const MAX_SCORE = 1000;
 const MAX_PEOPLE_TALLY = 50;
 
+let dev = false;
+
 function zeroPad(t) {
   return d3.format('02')(t);
 }
@@ -125,18 +127,20 @@ function downloadSheet({ id, gid }) {
 function liveChartAppearance({ people, data }) {
   return new Promise((resolve, reject) => {
     downloadSheet({
-			id: '1B7hymymVfsvb0EQ_7g5WjgrvuJpBLeVi4HJuz4eNi6k',
-			gid: '1196667091'
+      id: '1B7hymymVfsvb0EQ_7g5WjgrvuJpBLeVi4HJuz4eNi6k',
+      gid: '1196667091'
     })
       .then(annotations => {
         const output = data.filter(d => d.rank_people < LIMIT);
         // add annotations
-        annotations.filter(a => a.approved.toLowerCase() === 'true').forEach(a => {
-          const match = output.find(
-            o => o.article === a.person && o.date === a.date
-          );
-          if (match) match.annotation = a.annotation;
-        });
+        annotations
+          .filter(a => a.approved.toLowerCase() === 'true')
+          .forEach(a => {
+            const match = output.find(
+              o => o.article === a.person && o.date === a.date
+            );
+            if (match) match.annotation = a.annotation;
+          });
 
         upload({ data: output, chart: '2018-top--appearance' })
           .then(() => resolve({ people, data }))
@@ -491,12 +495,13 @@ async function loadDays(people) {
   if (error) return Promise.reject(error);
   const data = [].concat(...output);
 
-  // fs.writeFileSync('./prepare.json', JSON.stringify(data));
+  if (dev) fs.writeFileSync('./prepare.json', JSON.stringify(data));
   // const data = JSON.parse(fs.readFileSync('./prepare.json', 'utf-8'));
   createChartData({ people, data });
 }
 
-function init() {
+function init(testing) {
+  dev = testing;
   return new Promise((resolve, reject) => {
     loadPeople()
       .then(loadDays)

@@ -16,7 +16,7 @@ function init() {
       sendMail(error);
       process.exit();
     });
-  // prepareForWeb();
 }
 
 init();
+// prepareForWeb(true);
