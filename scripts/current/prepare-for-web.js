@@ -14,6 +14,19 @@ const MAX_PEOPLE_TALLY = 50;
 
 let dev = false;
 
+// function generateRangeOfDays({ start, end }) {
+// 	const diff = Math.floor((end - start) / MS_DAY) + 1;
+// 	let cur = start.getTime();
+// 	return d3.range(diff).map(i => {
+// 		const date = new Date(cur);
+// 		const dateString = `${date.getFullYear()}-${zeroPad(
+// 			date.getMonth() + 1
+// 		)}-${zeroPad(date.getDate())}`;
+// 		cur += MS_DAY;
+// 		return { date, dateString };
+// 	});
+// }
+
 function zeroPad(t) {
   return d3.format('02')(t);
 }
@@ -226,11 +239,18 @@ function rollupViews(values) {
 }
 
 function rollupAppearance(values) {
+  const { article } = values[0];
+  const dates = generateDates();
   let prev = 0;
-  return values.map(v => {
-    prev += v.rank_people < 10 ? 1 : 0;
+
+  return dates.map(({ year, month, day }) => {
+    const match = values.find(v => v.date === `${year}-${month}-${day}`);
+    const plus = match && match.rank_people < 10;
+    prev += plus ? 1 : 0;
     return {
-      ...v,
+      date: `${year}-${month}-${day}`,
+      article,
+      ...match,
       appearance_sum: prev
     };
   });
@@ -442,8 +462,8 @@ function createChartData({ people, data }) {
   peopleInfo({ people, data })
     .then(liveChartAll)
     .then(liveChartAppearance)
-    .then(tallyChartViews)
     .then(tallyChartAppearance)
+    // .then(tallyChartViews)
     .catch(sendMail);
 
   // 	.then(breakoutChartRising)
