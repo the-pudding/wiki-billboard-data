@@ -38,7 +38,7 @@ function init() {
       }));
 
     const string = d3.csvFormat(clean);
-    const path = `${AWS_PATH}/annotations`;
+    const path = `${AWS_PATH}/2018-annotations`;
     uploadToS3({ string, path, ext: 'csv' })
       .then(() => {
         process.exit();
