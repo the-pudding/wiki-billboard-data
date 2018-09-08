@@ -125,45 +125,12 @@ function getOldPageviews(article) {
   });
 }
 
-function downloadSheet({ id, gid }) {
-  return new Promise((resolve, reject) => {
-    const base = 'https://docs.google.com/spreadsheets/u/1/d';
-    const url = `${base}/${id}/export?format=csv&id=${id}&gid=${gid}`;
-
-    request(url, (err, response, body) => {
-      if (err) reject(err);
-      const data = d3.csvParse(body);
-      resolve(data);
-    });
-  });
-}
-
-function parseSheetDate(d) {
-  const s = d.split('/');
-  return `${s[2]}-${zeroPad(s[0])}-${zeroPad(s[1])}`;
-}
-
 function liveChartAppearance({ people, data }) {
   return new Promise((resolve, reject) => {
-    downloadSheet({
-      id: '1B7hymymVfsvb0EQ_7g5WjgrvuJpBLeVi4HJuz4eNi6k',
-      gid: '1196667091'
-    })
-      .then(annotations => {
-        const output = data.filter(d => d.rank_people < LIMIT);
-        // add annotations
-        annotations
-          .filter(a => a.approved.toLowerCase() === 'true')
-          .forEach(a => {
-            const match = output.find(
-              o => o.article === a.person && o.date === parseSheetDate(a.date)
-            );
-            if (match) match.annotation = a.annotation;
-          });
-        upload({ data: output, chart: '2018-top--appearance' })
-          .then(() => resolve({ people, data }))
-          .catch(reject);
-      })
+    const output = data.filter(d => d.rank_people < LIMIT);
+
+    upload({ data: output, chart: '2018-top--appearance' })
+      .then(() => resolve({ people, data }))
       .catch(reject);
   });
 }
@@ -465,7 +432,6 @@ async function breakoutChartScoring(data) {
 function createChartData({ people, data }) {
   peopleInfo({ people, data })
     .then(liveChartAll)
-    .then(liveChartAppearance)
     .then(tallyChartAppearance)
     .catch(sendMail);
 
