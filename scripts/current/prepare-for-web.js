@@ -138,6 +138,11 @@ function downloadSheet({ id, gid }) {
   });
 }
 
+function parseSheetDate(d) {
+  const s = d.split('/');
+  return `${s[2]}-${zeroPad(s[0])}-${zeroPad(s[1])}`;
+}
+
 function liveChartAppearance({ people, data }) {
   return new Promise((resolve, reject) => {
     downloadSheet({
@@ -151,11 +156,10 @@ function liveChartAppearance({ people, data }) {
           .filter(a => a.approved.toLowerCase() === 'true')
           .forEach(a => {
             const match = output.find(
-              o => o.article === a.person && o.date === a.date
+              o => o.article === a.person && o.date === parseSheetDate(a.date)
             );
             if (match) match.annotation = a.annotation;
           });
-
         upload({ data: output, chart: '2018-top--appearance' })
           .then(() => resolve({ people, data }))
           .catch(reject);
@@ -463,7 +467,6 @@ function createChartData({ people, data }) {
     .then(liveChartAll)
     .then(liveChartAppearance)
     .then(tallyChartAppearance)
-    // .then(tallyChartViews)
     .catch(sendMail);
 
   // 	.then(breakoutChartRising)
