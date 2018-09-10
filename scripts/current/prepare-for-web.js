@@ -431,6 +431,7 @@ async function breakoutChartScoring(data) {
 
 function createChartData({ people, data }) {
   peopleInfo({ people, data })
+    .then(liveChartAppearance)
     .then(liveChartAll)
     .then(tallyChartAppearance)
     .catch(sendMail);
