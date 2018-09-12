@@ -1,5 +1,13 @@
 # Wiki Billboard Data
 
+## Live Updating Data
+
+- [list of all people who appear in top 10 with details](https://pudding.cool/2018/08/wiki-billboard-data/web/2018-people.csv)
+
+- [daily rank of all people who appear in top 10](https://pudding.cool/2018/08/wiki-billboard-data/web/2018-top--all.csv)
+
+- [approved annotations](https://pudding.cool/2018/08/wiki-billboard-data/web/2018-annotations.csv)
+
 ## Setup
 
 #### Dependencies
@@ -11,7 +19,7 @@
 
 Clone the repo and run `npm i`
 
-## Reproduce
+## Reproduce (historical 2015-2017 data)
 
 Individual steps below, or run `make reproduce`
 
