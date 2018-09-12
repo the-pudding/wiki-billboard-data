@@ -69,7 +69,7 @@ function zeroPad(t) {
 
 function generateDates() {
   const usec = 86400000;
-  const start = new Date(2016, 0, 1);
+  const start = new Date(2015, 6, 1);
   const end = new Date().getTime() - usec;
   let timestamp = start.getTime();
   const output = [];
