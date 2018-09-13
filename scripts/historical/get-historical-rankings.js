@@ -24,11 +24,25 @@ function extractPeople(file) {
   return withDate;
 }
 
-function filterToPeople() {
-  const files = fs.readdirSync(outputDir).filter(d => d.includes('.json'));
-  const peopleByDay = files.map(extractPeople);
-  const flatPeople = [].concat(...peopleByDay);
-  return flatPeople;
+function extractEntities(file) {
+  console.log(file);
+
+  const data = JSON.parse(fs.readFileSync(`${outputDir}/${file}`));
+  const { articles } = data.items[0];
+
+  const date = file.replace('.json', '');
+  const withDate = articles.map((d, i) => ({
+    ...d,
+    date
+  }));
+  return withDate;
+}
+
+function outputAllEntities() {
+    const files = fs.readdirSync(outputDir).filter(d => d.includes('.json'));
+    const peopleByDay = files.map(extractEntities);
+    const flatPeople = [].concat(...peopleByDay);
+    return flatPeople;
 }
 
 function download({ year, month, day }) {
@@ -93,8 +107,8 @@ function init() {
   // download json for each day
   downloadDays(dates);
 
-  // filter down json to only entities in our people.csv
-  const filteredData = filterToPeople();
+  // filter down json to only entities
+  const filteredData = outputAllEntities();
 
   // output filtered down data
   const output = d3.csvFormat(filteredData);
