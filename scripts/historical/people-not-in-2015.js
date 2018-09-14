@@ -8,7 +8,7 @@ const outputDir = './output/';
 function init() {
     mkdirp(outputDir);
     
-    const peopleDatabase = d3.csvParse(fs.readFileSync('./output/final_people.csv','utf-8'))
+    const peopleDatabase = d3.csvParse(fs.readFileSync('./output/final-people.csv','utf-8'))
     const historicalRankings = d3.csvParse(fs.readFileSync('./output/historical-rankings.csv','utf-8'))
 
     const nestedRankings = d3.nest()
