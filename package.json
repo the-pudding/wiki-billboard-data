@@ -8,7 +8,9 @@
     "parse-year-pages": "node scripts/historical/parse-year-pages.js",
     "get-historical-rankings": "node scripts/historical/get-historical-rankings.js",
     "filter-to-people": "node scripts/historical/filter-to-people.js",
-    "people-not-in-2015": "node scripts/historical/people-not-in-2015.js"
+    "people-not-in-2015": "node scripts/historical/people-not-in-2015.js",
+    "get-people-pageviews": "node scripts/historical/get-people-pageviews.js",
+    "bin-pageviews": "node scripts/historical/bin-pageviews.js"
   },
   "repository": {
     "type": "git",
