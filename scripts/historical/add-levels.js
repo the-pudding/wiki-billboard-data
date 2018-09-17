@@ -46,17 +46,17 @@ function init() {
     const bottom = d[0].level < 5;
     const extent = d3.extent(d, d => d.level);
     const diff = extent[1] - extent[0];
-    return bottom && diff >= 3;
+    return bottom && diff >= 4;
   });
 
   const upComers = filtered.filter(d => {
     const max = d3.max(d, v => v.level);
-    return max < 5;
+    return max <= 5;
   });
 
   const madeIt = filtered.filter(d => {
     const max = d3.max(d, v => v.level);
-    return max >= 5;
+    return max > 5;
   });
 
   const flatUp = [].concat(...upComers);
