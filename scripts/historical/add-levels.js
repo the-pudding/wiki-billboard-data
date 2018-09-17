@@ -42,10 +42,11 @@ function init() {
 
   const withLevels = data.map(addLevels);
 
-  const filtered = withLevels.filter(d => {
+  const filtered = withLevels.filter(d => d.length >= 4).filter(d => {
     const bottom = d[0].level < 5;
-    const extent = d3.extent(d, d => d.level);
-    const diff = extent[1] - extent[0];
+    const min = d3.min(d, d => d.level);
+    const maxSustainedFourWeeks = d[d.length - 4].level;
+    const diff = maxSustainedFourWeeks - min;
     return bottom && diff >= 4;
   });
 
@@ -56,7 +57,8 @@ function init() {
 
   const madeIt = filtered.filter(d => {
     const max = d3.max(d, v => v.level);
-    return max > 5;
+    const min = d3.min(d, v => v.level);
+    return max > 6 && min < 4;
   });
 
   const flatUp = [].concat(...upComers);
