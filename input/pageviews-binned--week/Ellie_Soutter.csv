@@ -1,8 +1,8 @@
-bin,binSize,median,article,timestamp
-0,7,7168,Ellie_Soutter,20180727
-1,7,1074,Ellie_Soutter,20180727
-2,7,520,Ellie_Soutter,20180727
-3,7,358,Ellie_Soutter,20180727
-4,7,281,Ellie_Soutter,20180727
-5,7,142,Ellie_Soutter,20180727
-6,7,137,Ellie_Soutter,20180727
+bin,binSize,median,timestamp,article
+0,7,7168,20180727,Ellie_Soutter
+1,7,1074,20180803,Ellie_Soutter
+2,7,520,20180810,Ellie_Soutter
+3,7,358,20180817,Ellie_Soutter
+4,7,281,20180824,Ellie_Soutter
+5,7,142,20180831,Ellie_Soutter
+6,7,137,20180907,Ellie_Soutter

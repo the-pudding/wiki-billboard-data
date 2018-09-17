@@ -21,14 +21,17 @@ function bin(inputData, binSize) {
     const nested = d3
       .nest()
       .key(d => d[`bin${binSize}`])
-      .rollup(values => d3.median(values, v => v.views))
+      .rollup(values => ({
+        median: d3.median(values, v => v.views),
+        timestamp: values[0].timestamp
+      }))
       .entries(data)
       .map(d => ({
         bin: d.key,
         binSize,
-        median: d.value,
-        article: data[0].article,
-        timestamp: data[0].timestamp
+        median: d.value.median,
+        timestamp: d.value.timestamp,
+        article: data[0].article
       }));
     return nested;
   });
