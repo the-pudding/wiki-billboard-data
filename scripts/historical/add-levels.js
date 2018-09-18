@@ -52,7 +52,7 @@ function init() {
 
   const upComers = filtered.filter(d => {
     const max = d3.max(d, v => v.level);
-    return max <= 5;
+    return max <= 6;
   });
 
   const madeIt = filtered.filter(d => {
