@@ -54,6 +54,7 @@ function init() {
     const median2015 = d3.median(data2015, v => v.median);
     const startedIn2015 = count2015 < 27; // 27 = num of total weeks in 2015 since start of data
     const smallIn2015 = startedIn2015 || median2015 < levels[7]; // 7 = 100
+    // TODO filter by blacklist
 
     return bottom && diff >= 4 && smallIn2015;
   });
