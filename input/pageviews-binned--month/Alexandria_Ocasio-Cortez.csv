@@ -1,0 +1,16 @@
+bin,binSize,median,timestamp,article
+25,30,0,20170805,Alexandria_Ocasio-Cortez
+26,30,0,20170819,Alexandria_Ocasio-Cortez
+27,30,0,20170918,Alexandria_Ocasio-Cortez
+28,30,0,20171018,Alexandria_Ocasio-Cortez
+29,30,0,20171116,Alexandria_Ocasio-Cortez
+30,30,0,20171216,Alexandria_Ocasio-Cortez
+31,30,0,20180115,Alexandria_Ocasio-Cortez
+32,30,0,20180214,Alexandria_Ocasio-Cortez
+33,30,1.9048187321240695,20180317,Alexandria_Ocasio-Cortez
+34,30,1.5002363668792755,20180416,Alexandria_Ocasio-Cortez
+35,30,6.863977688206198,20180516,Alexandria_Ocasio-Cortez
+36,30,10345.799112755773,20180615,Alexandria_Ocasio-Cortez
+37,30,18898.39747394911,20180715,Alexandria_Ocasio-Cortez
+38,30,7031.2653576804905,20180814,Alexandria_Ocasio-Cortez
+39,30,7036.578191632337,20180913,Alexandria_Ocasio-Cortez

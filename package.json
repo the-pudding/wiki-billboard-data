@@ -10,6 +10,7 @@
     "filter-to-people": "node scripts/historical/filter-to-people.js",
     "people-not-in-2015": "node scripts/historical/people-not-in-2015.js",
     "get-people-pageviews": "node scripts/historical/get-people-pageviews.js",
+    "get-wiki-pageviews": "node scripts/historical/get-wiki-pageviews.js",
     "bin-pageviews": "node scripts/historical/bin-pageviews.js",
     "add-levels": "node scripts/historical/add-levels.js"
   },
