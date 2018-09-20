@@ -42,7 +42,15 @@ function init() {
 
   const withLevels = data.map(addLevels);
 
-  const blacklist = ['Vanessa_Williams'];
+  const blacklist = [
+    'Vanessa_Williams',
+    'Dale_Earnhardt_Jr.',
+    'Harry_Connick_Jr.',
+    'Floyd_Mayweather_Jr.',
+    'Robert_F._Kennedy_Jr.',
+    'John_Forbes_Nash_Jr.',
+    'Cuba_Gooding_Jr.',
+    'Joe_Kennedy_Jr.'];
 
   const filtered = withLevels.filter(d => d.length >= 4).filter(d => {
     const bottom = d[0].level < 5;
@@ -54,24 +62,22 @@ function init() {
     const median2015 = d3.median(data2015, v => v.median);
     const startedIn2015 = count2015 < 27; // 27 = num of total weeks in 2015 since start of data
     const smallIn2015 = startedIn2015 || median2015 < levels[7]; // 7 = 100
-    // TODO filter by blacklist
+    const inBlacklist = blacklist.includes(d[0].article)
 
-    return bottom && diff >= 4 && smallIn2015;
+    return bottom && diff >= 4 && smallIn2015 && !inBlacklist;
   });
 
-  // const upComers = filtered.filter(d => {
-  //   const max = d3.max(d, v => v.level);
-  //   return max <= 6;
-  // });
+  const labeled = filtered.map(d => {
+    const madeIt = d3.max(d, v => v.level) > 6
+    return d.map(v => ({
+      ...v,
+      madeIt
+    }))
+  })
 
-  // const madeIt = filtered.filter(d => {
-  //   const max = d3.max(d, v => v.level);
-  //   const min = d3.min(d, v => v.level);
-  //   return max > 6 && min < 4;
-  // });
-  console.log(filtered.length);
+  console.log(labeled.length);
 
-  const flat = [].concat(...filtered);
+  const flat = [].concat(...labeled);
   const output = d3.csvFormat(flat);
 
   fs.writeFileSync('./output/web.csv', output);
