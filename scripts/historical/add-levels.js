@@ -52,7 +52,7 @@ function init() {
     'Robert_F._Kennedy_Jr.',
     'John_Forbes_Nash_Jr.',
     'Cuba_Gooding_Jr.',
-    'Joe_Kennedy_Jr.'
+    'Joe_Kennedy_Jr.',
   ];
 
   const sustained = 3;

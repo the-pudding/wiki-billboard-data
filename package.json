@@ -12,7 +12,8 @@
     "get-people-pageviews": "node scripts/historical/get-people-pageviews.js",
     "get-wiki-pageviews": "node scripts/historical/get-wiki-pageviews.js",
     "bin-pageviews": "node scripts/historical/bin-pageviews.js",
-    "add-levels": "node scripts/historical/add-levels.js"
+    "add-levels": "node scripts/historical/add-levels.js",
+    "get-people-details": "node scripts/historical/get-people-details.js"
   },
   "repository": {
     "type": "git",
