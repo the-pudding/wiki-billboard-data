@@ -1,2 +1,2 @@
-bin,binSize,median,timestamp,article
-33,30,0.48450884113696796,20180321,Antony_Armstrong-Jones_1st_Earl_of_Snowdon
+bin,binSize,pageviews_median,pageviews_sum,timestamp,article
+33,30,0.48450884113696796,0.9690176822739359,20180321,Antony_Armstrong-Jones_1st_Earl_of_Snowdon

@@ -23,14 +23,16 @@ function bin(inputData, binSize) {
       .nest()
       .key(d => d[`bin${binSize}`])
       .rollup(values => ({
-        median: d3.median(values, v => v.views_adjusted),
+        pageviews_median: d3.median(values, v => v.views_adjusted),
+        pageviews_sum: d3.sum(values, v => v.views_adjusted),
         timestamp: values[0].timestamp
       }))
       .entries(data)
       .map(d => ({
         bin: d.key,
         binSize,
-        median: d.value.median,
+        pageviews_median: d.value.pageviews_median,
+        pageviews_sum: d.value.pageviews_sum,
         timestamp: d.value.timestamp,
         article: data[0].article
       }));

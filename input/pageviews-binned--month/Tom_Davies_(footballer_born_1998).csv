@@ -1,2 +1,2 @@
-bin,binSize,median,timestamp,article
-21,30,0.4639017449853192,20170322,Tom_Davies_(footballer_born_1998)
+bin,binSize,pageviews_median,pageviews_sum,timestamp,article
+21,30,0.4639017449853192,1.9517450826006404,20170322,Tom_Davies_(footballer_born_1998)

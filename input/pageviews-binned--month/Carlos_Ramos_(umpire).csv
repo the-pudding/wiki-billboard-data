@@ -1,3 +1,3 @@
-bin,binSize,median,timestamp,article
-38,30,12031.096425045655,20180909,Carlos_Ramos_(umpire)
-39,30,4445.838039258613,20180913,Carlos_Ramos_(umpire)
+bin,binSize,pageviews_median,pageviews_sum,timestamp,article
+38,30,12031.096425045655,55446.877935795696,20180909,Carlos_Ramos_(umpire)
+39,30,4445.838039258613,4445.838039258613,20180913,Carlos_Ramos_(umpire)

@@ -1,3 +1,3 @@
-bin,binSize,median,timestamp,article
-38,30,1276.1908380749157,20180820,Josie_Totah
-39,30,618.0220435172683,20180913,Josie_Totah
+bin,binSize,pageviews_median,pageviews_sum,timestamp,article
+38,30,1276.1908380749157,91766.35997168838,20180820,Josie_Totah
+39,30,618.0220435172683,618.0220435172683,20180913,Josie_Totah

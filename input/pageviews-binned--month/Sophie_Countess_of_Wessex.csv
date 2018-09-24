@@ -1,2 +1,2 @@
-bin,binSize,median,timestamp,article
-33,30,0.5278894587344233,20180324,Sophie_Countess_of_Wessex
+bin,binSize,pageviews_median,pageviews_sum,timestamp,article
+33,30,0.5278894587344233,1.0557789174688466,20180324,Sophie_Countess_of_Wessex

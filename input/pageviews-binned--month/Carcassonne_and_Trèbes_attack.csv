@@ -1,8 +1,8 @@
-bin,binSize,median,timestamp,article
-33,30,411.93613318263976,20180323,Carcassonne_and_Trèbes_attack
-34,30,150.4291929236237,20180416,Carcassonne_and_Trèbes_attack
-35,30,101.88541888574775,20180516,Carcassonne_and_Trèbes_attack
-36,30,81.62422176353047,20180615,Carcassonne_and_Trèbes_attack
-37,30,75.23995131940539,20180715,Carcassonne_and_Trèbes_attack
-38,30,74.66505468679443,20180814,Carcassonne_and_Trèbes_attack
-39,30,65.00064898428698,20180913,Carcassonne_and_Trèbes_attack
+bin,binSize,pageviews_median,pageviews_sum,timestamp,article
+33,30,411.93613318263976,73333.02014128222,20180323,Carcassonne_and_Trèbes_attack
+34,30,150.4291929236237,4949.404960431983,20180416,Carcassonne_and_Trèbes_attack
+35,30,101.88541888574775,3164.655675865514,20180516,Carcassonne_and_Trèbes_attack
+36,30,81.62422176353047,2517.820038511677,20180615,Carcassonne_and_Trèbes_attack
+37,30,75.23995131940539,2352.3887289224763,20180715,Carcassonne_and_Trèbes_attack
+38,30,74.66505468679443,2313.0435853411554,20180814,Carcassonne_and_Trèbes_attack
+39,30,65.00064898428698,65.00064898428698,20180913,Carcassonne_and_Trèbes_attack
