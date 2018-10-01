@@ -13,7 +13,8 @@
     "get-wiki-pageviews": "node scripts/historical/get-wiki-pageviews.js",
     "bin-pageviews": "node scripts/historical/bin-pageviews.js",
     "add-levels": "node scripts/historical/add-levels.js",
-    "get-people-details": "node scripts/historical/get-people-details.js"
+    "get-people-details": "node scripts/historical/get-people-details.js",
+    "merge-details": "node scripts/historical/merge-details.js"
   },
   "repository": {
     "type": "git",
