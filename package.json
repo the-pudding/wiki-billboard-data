@@ -14,7 +14,8 @@
     "bin-pageviews": "node scripts/historical/bin-pageviews.js",
     "add-levels": "node scripts/historical/add-levels.js",
     "get-people-details": "node scripts/historical/get-people-details.js",
-    "merge-details": "node scripts/historical/merge-details.js"
+    "merge-details": "node scripts/historical/merge-details.js",
+    "final": "node scripts/historical/final.js"
   },
   "repository": {
     "type": "git",
