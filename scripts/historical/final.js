@@ -12,11 +12,12 @@ function init() {
     fs.readFileSync('./output/web--people.csv', 'utf-8')
   );
   const month = d3.csvParse(fs.readFileSync('./output/web.csv', 'utf-8'));
-
+  const blacklist = ['Murder_of_Catherine_Cesnik', 'OutDaughtered'];
   const nested = d3
     .nest()
     .key(d => d.article)
-    .entries(month);
+    .entries(month)
+    .filter(d => !blacklist.includes(d.key));
 
   const filtered = nested.filter(person => {
     const { values } = person;
