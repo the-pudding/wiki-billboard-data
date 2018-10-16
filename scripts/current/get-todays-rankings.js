@@ -42,6 +42,7 @@ function generateDate() {
   const year = yesterday.getFullYear();
   const month = zeroPad(yesterday.getMonth() + 1);
   const day = zeroPad(yesterday.getDate());
+  console.log({ year, month, day });
   return { year, month, day };
 }
 

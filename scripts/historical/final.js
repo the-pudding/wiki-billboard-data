@@ -1,6 +1,7 @@
 const fs = require('fs');
 const mkdirp = require('mkdirp');
 const d3 = require('d3');
+const shell = require('shelljs');
 const outputDir = './output';
 
 // look back 3 rows, that is max sustained
@@ -8,6 +9,7 @@ const outputDir = './output';
 // go back 6 months, if different than latest, then up + comer
 function init() {
   mkdirp(outputDir);
+  mkdirp('./output/preview');
   const people = d3.csvParse(
     fs.readFileSync('./output/web--people.csv', 'utf-8')
   );
@@ -38,6 +40,14 @@ function init() {
   const articles = filtered.map(f => f.key);
 
   const filteredPeople = people.filter(p => articles.includes(p.article));
+
+  filteredPeople.forEach(p => {
+    if (p.spotify_url) {
+      const article = p.article.replace(/[^\w]/g, '');
+      console.log(article);
+      shell.exec(`curl -o ./output/preview/${article}.mp3 "${p.spotify_url}"`);
+    }
+  });
 
   fs.writeFileSync('./output/final--people.csv', d3.csvFormat(filteredPeople));
 }

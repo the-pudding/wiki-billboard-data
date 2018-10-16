@@ -37,6 +37,7 @@
     "nodemailer": "4.6.7",
     "pageviews": "1.4.0",
     "request": "2.87.0",
+    "shelljs": "0.8.2",
     "wikijs": "^4.8.1"
   }
 }

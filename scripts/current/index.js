@@ -20,3 +20,4 @@ function init() {
 
 init();
 // prepareForWeb(true);
+// getTodaysRankings();
