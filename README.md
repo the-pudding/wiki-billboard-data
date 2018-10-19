@@ -8,6 +8,13 @@
 
 - [approved annotations](https://pudding.cool/2018/08/wiki-billboard-data/web/2018-annotations.csv)
 
+## Historical data
+- [monthtly binned daily average](https://pudding.cool/2018/10/wiki-breakout/assets/data/people-montly.csv)
+
+- [people info](https://pudding.cool/2018/10/wiki-breakout/assets/data/people-info.csv)
+
+
+
 ## Setup
 
 #### Dependencies
