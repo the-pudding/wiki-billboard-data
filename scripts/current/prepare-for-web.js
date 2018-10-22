@@ -12,20 +12,7 @@ const YEAR = 2017;
 const MAX_SCORE = 1000;
 const MAX_PEOPLE_TALLY = 50;
 
-let dev = false;
-
-// function generateRangeOfDays({ start, end }) {
-// 	const diff = Math.floor((end - start) / MS_DAY) + 1;
-// 	let cur = start.getTime();
-// 	return d3.range(diff).map(i => {
-// 		const date = new Date(cur);
-// 		const dateString = `${date.getFullYear()}-${zeroPad(
-// 			date.getMonth() + 1
-// 		)}-${zeroPad(date.getDate())}`;
-// 		cur += MS_DAY;
-// 		return { date, dateString };
-// 	});
-// }
+let dev = true;
 
 function zeroPad(t) {
   return d3.format('02')(t);
@@ -487,7 +474,7 @@ async function loadDays(people) {
   const data = [].concat(...output);
 
   if (dev) fs.writeFileSync('./prepare.json', JSON.stringify(data));
-  // const data = JSON.parse(fs.readFileSync('./prepare.json', 'utf-8'));
+  const data = JSON.parse(fs.readFileSync('./prepare.json', 'utf-8'));
   createChartData({ people, data });
 }
 
