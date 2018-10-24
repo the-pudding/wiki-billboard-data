@@ -12,7 +12,7 @@ const YEAR = 2017;
 const MAX_SCORE = 1000;
 const MAX_PEOPLE_TALLY = 50;
 
-let dev = true;
+let dev = false;
 
 function zeroPad(t) {
   return d3.format('02')(t);
@@ -449,11 +449,14 @@ function download({ year, month, day }) {
     const t = new Date().getTime();
     const url = `https://pudding.cool/2018/08/wiki-billboard-data/top-1000/${year}-${month}-${day}.json?version=${t}`;
     request(url, (err, response, body) => {
-      if (err) reject(err);
+      if (err) resolve();
       else if (response && response.statusCode === 200) {
         const people = JSON.parse(body);
         resolve(people);
-      } else reject(response.statusCode);
+      } else {
+        console.log(response.statusCode);
+        resolve();
+      }
     });
   });
 }
@@ -465,8 +468,8 @@ async function loadDays(people) {
   for (const date of dates) {
     console.log(date);
     await download(date)
-      .then(people => {
-        output.push(people);
+      .then(p => {
+        if (p) output.push(p);
       })
       .catch(sendMail);
   }
@@ -474,7 +477,8 @@ async function loadDays(people) {
   const data = [].concat(...output);
 
   if (dev) fs.writeFileSync('./prepare.json', JSON.stringify(data));
-  const data = JSON.parse(fs.readFileSync('./prepare.json', 'utf-8'));
+
+  // const data = JSON.parse(fs.readFileSync('./prepare.json', 'utf-8'));
   createChartData({ people, data });
 }
 
