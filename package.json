@@ -34,7 +34,7 @@
     "knox": "0.9.2",
     "lodash.uniqby": "^4.7.0",
     "mkdirp": "^0.5.1",
-    "nodemailer": "4.6.7",
+    "nodemailer": "6.9.8",
     "pageviews": "1.4.0",
     "request": "2.87.0",
     "shelljs": "0.8.2",
